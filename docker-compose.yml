@@ -1,0 +1,52 @@
+version: '3.7'
+
+services:
+     
+  redis-master:
+    image: redis:5-alpine
+    environment:
+      - REDIS_PASSWORD=QWERasdf1122
+    command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD}"
+    volumes:
+      - "./.data:/data"
+    ports:
+      - "16379:6379"
+ 
+  redis-slave:
+    environment:
+      - REDIS_PASSWORD=QWERasdf1122
+    image: redis:5-alpine
+    command: redis-server --slaveof redis-master 6379 --masterauth "${REDIS_PASSWORD}"
+    links:
+      - redis-master
+    volumes:
+      - "./.data:/data"
+     
+  # Instance 1
+  redis-sentinel:
+    environment:
+      - REDIS_PASSWORD=QWERasdf1122
+    build: 
+      context: ./redis-sentinel
+    links:
+      - redis-master
+    ports:
+      - "26379:26379"      
+ 
+  # Instance 2
+  redis-sentinel2:
+    environment:
+      - REDIS_PASSWORD=QWERasdf1122
+    build: 
+      context: ./redis-sentinel
+    links:
+      - redis-master
+ 
+  # Instance 3
+  redis-sentinel3:
+    environment:
+      - REDIS_PASSWORD=QWERasdf1122
+    build: 
+      context: ./redis-sentinel
+    links:
+      - redis-master
